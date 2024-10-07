@@ -12,12 +12,13 @@
             }
 
             function setCookie(cookie) {
-                var cookieString = cookie.name + "=" + cookie.value + "; path=/;";
-                if (cookie.domain) cookieString += " domain=" + cookie.domain + ";";
-                if (cookie.sameSite) cookieString += " SameSite=" + cookie.sameSite + ";";
-                if (cookie.secure) cookieString += " Secure;";
-                if (cookie.expires) cookieString += " expires=" + cookie.expires + ";";
-                document.cookie = cookieString;
+                // var cookieString = cookie.name + "=" + cookie.value + "; path=/;";
+                // if (cookie.domain) cookieString += " domain=" + cookie.domain + ";";
+                // if (cookie.sameSite) cookieString += " SameSite=" + cookie.sameSite + ";";
+                // if (cookie.secure) cookieString += " Secure;";
+                // if (cookie.expires) cookieString += " expires=" + cookie.expires + ";";
+
+                document.cookie = "BlnTest=cookie1;expires=Mon, 07 Oct 2024 09:42:20 GMT;path=/;secure=true;sameSite=None";
             }
 
             function delCookie(cookie) {
