@@ -82,11 +82,15 @@
             }
 
             // Fonction pour vérifier si les cookies sont activés
-            function isCookieEnabled(cookieTest) {
+            function isCookieEnabled() {
                 var cookie = {
-                    ...cookieTest,  
                     name: 'tst_bln_cookie_enabled',
-                    value: '1'
+                    value: '1',
+                    expires: 'Mon, 07 Oct 2024 09:42:20 GMT',
+                    maxAge: 'Mon, 07 Oct 2024 09:42:20 GMT',
+                    path: '/',
+                    secure: true,
+                    sameSite: 'None'
                 };
                 setCookie(cookie);
                 if (!getCookieByName(cookie.name)) {
@@ -102,7 +106,7 @@
                 var cookie = store.cookie;
                 var cookieReferer = store.cookieReferer;
                 var domain = store.domain;
-                if (!isCookieEnabled(cookie)) {
+                if (!isCookieEnabled()) {
                     return false;
                 }
                 setCookie({
