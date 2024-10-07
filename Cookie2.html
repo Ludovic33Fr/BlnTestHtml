@@ -16,6 +16,7 @@
                 if (cookie.domain) cookieString += " domain=" + cookie.domain + ";";
                 if (cookie.sameSite) cookieString += " SameSite=" + cookie.sameSite + ";";
                 if (cookie.secure) cookieString += " Secure;";
+                if (cookie.expires) cookieString += " expires=" + cookie.expires + ";";
                 document.cookie = cookieString;
             }
 
