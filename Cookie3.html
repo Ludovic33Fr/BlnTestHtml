@@ -82,8 +82,9 @@
             }
 
             // Fonction pour vérifier si les cookies sont activés
-            function isCookieEnabled() {
+            function isCookieEnabled(cookieTest) {
                 var cookie = {
+                    ...cookieTest,  
                     name: 'tst_bln_cookie_enabled',
                     value: '1'
                 };
@@ -101,7 +102,7 @@
                 var cookie = store.cookie;
                 var cookieReferer = store.cookieReferer;
                 var domain = store.domain;
-                if (!isCookieEnabled()) {
+                if (!isCookieEnabled(cookie)) {
                     return false;
                 }
                 setCookie({
