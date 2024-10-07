@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Exemple to push cookie</title>
+        <!-- <script type="text/javascript" src="http://localhost:59400/release/xcare-1.15.9.min.js?clientId=T9lotqYiXv&tenantId=rMDZn5j8x5" async></script> -->
+        <script>
+                // Fonction pour définir une valeur dans localStorage
+                function setLocalStorageItem(key, value) {
+                    try {
+                        localStorage.setItem(key, value);
+                        console.log(`Valeur "${value}" stockée avec la clé "${key}" dans localStorage`);
+                        return true;
+                    } catch (e) {
+                        console.error('Erreur lors de l\'écriture dans localStorage:', e);
+                        return false;
+                    }
+                }
+
+                // Fonction pour lire une valeur depuis localStorage
+                function getLocalStorageItem(key) {
+                try {
+                        const value = localStorage.getItem(key);
+                        console.log(`Valeur récupérée pour la clé "${key}": ${value}`);
+                        return value;
+                    } catch (e) {
+                        console.error('Erreur lors de la lecture depuis localStorage:', e);
+                        return null;
+                    }
+                }
+                
+                function setCookie(cname, cvalue, exMins) {
+                const d = new Date();
+                d.setTime(d.getTime() + exMins * 60 * 1000);
+                const expires = `expires=${d.toUTCString()}`;
+                document.cookie = `${cname}=${cvalue};${expires};path=/;secure=true;sameSite=None`;
+                }
+
+                setCookie('BlnCookie', 'cookie1', 3);
+
+                // Utilisation
+                const key = 'tst_bln_storage_enabled';
+                const value = '1';
+
+                // Stockage de la valeur
+                setLocalStorageItem(key, value);
+
+                // Récupération et vérification de la valeur
+                const storedValue = getLocalStorageItem(key);
+                if (storedValue === value) {
+                    console.log('La valeur a été correctement stockée et récupérée.');
+                } else {
+                    console.log('Problème lors du stockage ou de la récupération de la valeur.');
+                }
+        </script>
+    </head>
+    <body>
+        <h1>Simple cookie push</h1>
+    </body>
+</html>

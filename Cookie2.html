@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Exemple to push cookie 2</title>
+        <!-- <script type="text/javascript" src="http://localhost:59400/release/xcare-1.15.9.min.js?clientId=T9lotqYiXv&tenantId=rMDZn5j8x5" async></script> -->
+        <!-- <script>
+                // Fonction pour définir une valeur dans localStorage
+                function setLocalStorageItem(key, value) {
+                    try {
+                        localStorage.setItem(key, value);
+                        console.log(`Valeur "${value}" stockée avec la clé "${key}" dans localStorage`);
+                        return true;
+                    } catch (e) {
+                        console.error('Erreur lors de l\'écriture dans localStorage:', e);
+                        return false;
+                    }
+                }
+
+                // Fonction pour lire une valeur depuis localStorage
+                function getLocalStorageItem(key) {
+                try {
+                        const value = localStorage.getItem(key);
+                        console.log(`Valeur récupérée pour la clé "${key}": ${value}`);
+                        return value;
+                    } catch (e) {
+                        console.error('Erreur lors de la lecture depuis localStorage:', e);
+                        return null;
+                    }
+                }
+                
+                function setCookie(cname, cvalue, exMins) {
+                const d = new Date();
+                d.setTime(d.getTime() + exMins * 60 * 1000);
+                const expires = `expires=${d.toUTCString()}`;
+                document.cookie = `${cname}=${cvalue};${expires};path=/;secure=true;sameSite=None`;
+                }
+
+                setCookie('BlnCookie', 'cookie1', 3);
+
+                // Utilisation
+                const key = 'tst_bln_storage_enabled';
+                const value = '1';
+
+                // Stockage de la valeur
+                setLocalStorageItem(key, value);
+
+                // Récupération et vérification de la valeur
+                const storedValue = getLocalStorageItem(key);
+                if (storedValue === value) {
+                    console.log('La valeur a été correctement stockée et récupérée.');
+                } else {
+                    console.log('Problème lors du stockage ou de la récupération de la valeur.');
+                }
+        </script> -->
+        <script>
+            // Fonctions de gestion des cookies
+            function getCookieByName(name) {
+                var value = "; " + document.cookie;
+                var parts = value.split("; " + name + "=");
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
+            function setCookie(cookie) {
+                var cookieString = cookie.name + "=" + cookie.value + "; path=/;";
+                if (cookie.domain) cookieString += " domain=" + cookie.domain + ";";
+                if (cookie.sameSite) cookieString += " SameSite=" + cookie.sameSite + ";";
+                if (cookie.secure) cookieString += " Secure;";
+                document.cookie = cookieString;
+            }
+
+            function delCookie(cookie) {
+                document.cookie = cookie.name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;" + (cookie.domain ? " domain=" + cookie.domain + ";" : "");
+            }
+
+            // Fonction pour ajouter un cookie à la recherche
+            function addCookieInSearch(cookie, search) {
+                if (!cookie || !cookie.name) {
+                    return search;
+                }
+                var expr = new RegExp("([?&])(" + cookie.name + ")=([^&#]*)", "u");
+                if (!search.match(expr)) {
+                    var prefix = search.indexOf('?') === 0 ? '&' : '?';
+                    var searchSfx = prefix + cookie.name + "=" + cookie.value;
+                    return search + searchSfx;
+                }
+                return search.replace(expr, "$1$2=" + cookie.value);
+            }
+
+            // Fonction pour construire l'URL avec le challenge
+            function buildUrlWithChallenge() {
+                var store = window.__blnChallengeStore || {};
+                var cookie = store.cookie;
+                var cookieReferer = store.cookieReferer;
+                var location = window.location;
+                var searchWithCookie = addCookieInSearch(
+                    cookieReferer,
+                    addCookieInSearch(cookie, location.search)
+                );
+                return location.origin + location.pathname + searchWithCookie + location.hash;
+            }
+
+            // Fonction pour vérifier le challenge
+            function checkChallenge() {
+                var store = window.__blnChallengeStore || {};
+                var cookie = store.cookie;
+                var checkChallengeParams = store.checkChallengeParams || {};
+                var name = cookie.name;
+                var value = cookie.value;
+                var http = new XMLHttpRequest();
+                var url = "/.well-known/baleen/challengejs/check?" + name + "=" + value;
+                var payload = "";
+                for (var key in checkChallengeParams) {
+                    if (checkChallengeParams.hasOwnProperty(key)) {
+                        if (payload !== "") payload += "&";
+                        payload += key + "=" + checkChallengeParams[key];
+                    }
+                }
+                http.open('POST', url);
+                http.send(payload);
+            }
+
+            // Fonction pour recharger la page
+            function reload(redirectUrl) {
+                setTimeout(function() {
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                }, 2);
+            }
+
+            // Fonction pour vérifier si les cookies sont activés
+            function isCookieEnabled() {
+                var cookie = {
+                    name: 'tst_bln_cookie_enabled',
+                    value: '1'
+                };
+                setCookie(cookie);
+                if (!getCookieByName(cookie.name)) {
+                    return false;
+                }
+                delCookie(cookie);
+                return true;
+            }
+
+            // Fonction pour définir le cookie du challenge
+            function setChallengeCookie() {
+                var store = window.__blnChallengeStore || {};
+                var cookie = store.cookie;
+                var cookieReferer = store.cookieReferer;
+                var domain = store.domain;
+                if (!isCookieEnabled()) {
+                    return false;
+                }
+                setCookie({
+                    name: cookie.name,
+                    value: cookie.value,
+                    domain: domain
+                });
+                if (!getCookieByName(cookie.name)) {
+                    return false;
+                }
+                if (cookieReferer) {
+                    setCookie({
+                        name: cookieReferer.name,
+                        value: cookieReferer.value,
+                        domain: domain
+                    });
+                }
+                checkChallenge();
+                reload();
+                return true;
+            }
+
+            // Fonction principale pour exécuter le challenge
+            function run() {
+                if (!setChallengeCookie()) {
+                    var urlWithCookie = buildUrlWithChallenge();
+                    setTimeout(function() {
+                        checkChallenge();
+                        reload(urlWithCookie);
+                    }, 1000);
+                }
+            }
+
+            // Fonction principale
+            function main() {
+                var store = window.__blnChallengeStore || {};
+                var unregisterServiceWorker = store.unregisterServiceWorker;
+                if (unregisterServiceWorker && navigator && navigator.serviceWorker) {
+                    navigator.serviceWorker.getRegistrations()
+                        .then(function(regs) {
+                            return Promise.all(regs.map(function(reg) {
+                                return reg.unregister();
+                            }));
+                        })
+                        .then(function() {
+                            run();
+                        })
+                        .catch(function() {
+                            run();
+                        });
+                } else {
+                    run();
+                }
+            }
+
+            // Exécution du script
+            // main();  
+            run();
+        </script>
+    </head>
+    <body>
+        <h1>Simple cookie push</h1>
+    </body>
+</html>
